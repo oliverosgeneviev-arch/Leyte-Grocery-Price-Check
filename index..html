@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Leyte Grocery Price Checker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1a6b3a;
+      --primary-light: #e8f5ee;
+      --primary-dark: #104025;
+      --accent: #f05b2a;
+      --accent-light: #fff0eb;
+      --cheapest: #16a34a;
+      --cheapest-bg: #dcfce7;
+      --expensive: #dc2626;
+      --bg: #f4f7f5;
+      --card: #ffffff;
+      --border: #e2e8e4;
+      --text: #1a2e22;
+      --subtext: #5a7165;
+      --rob: #c41e3a;
+      --sm: #0055a5;
+      --pg: #d4870a;
+      --mg: #2d7d46;
+      --shadow: 0 2px 12px rgba(26,107,58,0.08);
+      --shadow-hover: 0 6px 24px rgba(26,107,58,0.15);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    .app-header {
+      background: var(--primary);
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px 10px;
+    }
+    .app-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-icon {
+      width: 38px; height: 38px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+    }
+    .app-name {
+      line-height: 1.1;
+    }
+    .app-name h1 {
+      font-size: 14px; font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.2px;
+    }
+    .app-name span {
+      font-size: 10px; font-weight: 400;
+      color: rgba(255,255,255,0.7);
+    }
+    .dti-badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 9px; font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .city-selector-wrap {
+      padding: 0 16px 12px;
+    }
+    .city-label {
+      font-size: 10px; font-weight: 500;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 4px;
+      display: block;
+    }
+    .city-select {
+      width: 100%;
+      background: rgba(255,255,255,0.15);
+      border: 1.5px solid rgba(255,255,255,0.3);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px; font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+    }
+    .city-select option { background: var(--primary-dark); color: #fff; }
+
+    .search-wrap {
+      padding: 0 16px 12px;
+    }
+    .search-box {
+      position: relative;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 9px 14px 9px 38px;
+      border-radius: 10px;
+      border: 1.5px solid rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+    }
+    .search-box input::placeholder { color: rgba(255,255,255,0.55); }
+    .search-box input:focus { outline: none; border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.2); }
+    .search-icon {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      font-size: 16px; opacity: 0.7;
+    }
+
+    /* ── CATEGORY TABS ── */
+    .cat-scroll {
+      background: #fff;
+      border-bottom: 1.5px solid var(--border);
+      overflow-x: auto;
+      white-space: nowrap;
+      scrollbar-width: none;
+      position: sticky;
+      top: 172px;
+      z-index: 90;
+    }
+    .cat-scroll::-webkit-scrollbar { display: none; }
+    .cat-tabs {
+      display: inline-flex;
+      padding: 8px 12px;
+      gap: 6px;
+    }
+    .cat-tab {
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      color: var(--subtext);
+      font-family: 'Poppins', sans-serif;
+      font-size: 12px; font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .cat-tab:hover { border-color: var(--primary); color: var(--primary); }
+    .cat-tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+      font-weight: 600;
+    }
+    .cat-tab .cat-icon { margin-right: 4px; }
+
+    /* ── STORE LEGEND ── */
+    .store-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px 16px;
+      background: #fff;
+      border-bottom: 1.5px solid var(--border);
+    }
+    .store-pill {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1.5px solid;
+    }
+    .store-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .store-pill.rob { color: var(--rob); border-color: var(--rob); background: #fef2f2; }
+    .store-pill.sm  { color: var(--sm);  border-color: var(--sm);  background: #eff6ff; }
+    .store-pill.pg  { color: var(--pg);  border-color: var(--pg);  background: #fffbeb; }
+    .store-pill.mg  { color: var(--mg);  border-color: var(--mg);  background: #f0fdf4; }
+    .store-dot.rob { background: var(--rob); }
+    .store-dot.sm  { background: var(--sm); }
+    .store-dot.pg  { background: var(--pg); }
+    .store-dot.mg  { background: var(--mg); }
+    .store-pill.unavail { opacity: 0.35; filter: grayscale(1); }
+
+    /* ── SUMMARY BAR ── */
+    .summary-bar {
+      padding: 10px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 8px;
+    }
+    .result-count {
+      font-size: 12px; font-weight: 500; color: var(--subtext);
+    }
+    .result-count strong { color: var(--primary); font-weight: 700; }
+    .sort-select {
+      font-family: 'Poppins', sans-serif;
+      font-size: 12px; font-weight: 500;
+      padding: 5px 28px 5px 10px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      background: #fff;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%231a2e22' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      cursor: pointer;
+    }
+
+    /* ── PRODUCT GRID ── */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 12px;
+      padding: 0 16px 16px;
+    }
+
+    /* ── PRODUCT CARD ── */
+    .product-card {
+      background: var(--card);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      border: 1.5px solid var(--border);
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .product-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-1px); }
+
+    .card-header {
+      padding: 12px 14px 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .item-name {
+      font-size: 13px; font-weight: 600; color: var(--text);
+      line-height: 1.3; flex: 1;
+    }
+    .item-unit {
+      font-size: 11px; font-weight: 400; color: var(--subtext);
+      margin-top: 1px;
+    }
+    .cat-tag {
+      font-size: 10px; font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--primary-light);
+      color: var(--primary);
+      white-space: nowrap;
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
+
+    .prices-wrap {
+      padding: 10px 14px;
+    }
+    .price-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 5px 8px;
+      border-radius: 8px;
+      margin-bottom: 4px;
+      transition: background 0.15s;
+    }
+    .price-row:last-child { margin-bottom: 0; }
+    .price-row.cheapest-row {
+      background: var(--cheapest-bg);
+      border: 1.5px solid #86efac;
+    }
+    .price-row.unavail-row { opacity: 0.4; }
+
+    .store-name-label {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 500; color: var(--subtext);
+    }
+    .store-badge {
+      width: 8px; height: 8px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .price-amount {
+      font-size: 14px; font-weight: 700;
+    }
+    .price-row.cheapest-row .price-amount { color: var(--cheapest); }
+    .price-row:not(.cheapest-row):not(.unavail-row) .price-amount { color: var(--text); }
+
+    .cheapest-label {
+      font-size: 9px; font-weight: 700;
+      background: var(--cheapest);
+      color: #fff;
+      padding: 2px 6px; border-radius: 4px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .card-footer {
+      padding: 8px 14px 11px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .dti-info {
+      font-size: 11px; color: var(--subtext);
+    }
+    .dti-info strong { color: var(--accent); font-weight: 700; }
+    .savings-badge {
+      font-size: 10px; font-weight: 700;
+      color: var(--cheapest);
+      background: var(--cheapest-bg);
+      padding: 3px 8px; border-radius: 6px;
+    }
+    .na-text { font-size: 12px; color: #aaa; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--subtext);
+    }
+    .empty-state .icon { font-size: 56px; margin-bottom: 12px; }
+    .empty-state h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+    .empty-state p { font-size: 13px; }
+
+    /* ── FOOTER ── */
+    .app-footer {
+      background: var(--primary-dark);
+      color: rgba(255,255,255,0.65);
+      text-align: center;
+      padding: 16px;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+    .app-footer strong { color: rgba(255,255,255,0.9); }
+
+    /* ── PRICE DIFF INDICATOR ── */
+    .pricebar-wrap {
+      padding: 0 14px 10px;
+    }
+    .pricebar-label {
+      font-size: 10px; color: var(--subtext); margin-bottom: 4px; font-weight: 500;
+    }
+    .pricebar {
+      height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden;
+      position: relative;
+    }
+    .pricebar-fill {
+      position: absolute; left: 0; top: 0; height: 100%;
+      background: linear-gradient(90deg, var(--cheapest), #86efac);
+      border-radius: 3px;
+      transition: width 0.4s;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 480px) {
+      .products-grid { grid-template-columns: 1fr; gap: 10px; }
+      .header-top { padding: 12px 14px 8px; }
+      .app-name h1 { font-size: 13px; }
+      .cat-scroll { top: 166px; }
+    }
+    @media (min-width: 768px) {
+      .products-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (min-width: 1100px) {
+      .products-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (min-width: 1400px) {
+      .products-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    /* ── LOADING ── */
+    .loading {
+      text-align: center; padding: 80px 20px;
+      color: var(--subtext); font-size: 14px;
+    }
+
+    /* ── INTRO BANNER ── */
+    .intro-banner {
+      margin: 10px 16px 0;
+      background: linear-gradient(135deg, var(--primary) 0%, #2d9d5e 100%);
+      border-radius: 14px;
+      padding: 14px 18px;
+      display: flex; gap: 12px; align-items: center;
+      color: #fff;
+    }
+    .intro-banner .banner-icon { font-size: 32px; flex-shrink: 0; }
+    .intro-banner h2 { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+    .intro-banner p { font-size: 11px; opacity: 0.85; line-height: 1.4; }
+
+    .disclaimer {
+      margin: 8px 16px 0;
+      background: #fff8e1;
+      border: 1px solid #fbbf24;
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 11px;
+      color: #78350f;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     HEADER
+══════════════════════════════════ -->
+<header class="app-header">
+  <div class="header-top">
+    <div class="app-logo">
+      <div class="logo-icon">🛒</div>
+      <div class="app-name">
+        <h1>Leyte Grocery Price Checker</h1>
+        <span>Compare supermarket prices in real-time</span>
+      </div>
+    </div>
+    <div class="dti-badge">DTI SRP Apr 2026</div>
+  </div>
+  <div class="city-selector-wrap">
+    <span class="city-label">📍 Select your City / Municipality</span>
+    <select class="city-select" id="citySelect"></select>
+  </div>
+  <div class="search-wrap">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search for items (e.g. sardines, shampoo...)">
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════
+     CATEGORY TABS
+══════════════════════════════════ -->
+<div class="cat-scroll" id="catScroll">
+  <div class="cat-tabs" id="catTabs"></div>
+</div>
+
+<!-- ══════════════════════════════════
+     STORE LEGEND
+══════════════════════════════════ -->
+<div class="store-legend" id="storeLegend"></div>
+
+<!-- ══════════════════════════════════
+     MAIN CONTENT
+══════════════════════════════════ -->
+<main id="mainContent">
+  <div class="intro-banner">
+    <div class="banner-icon">🏪</div>
+    <div>
+      <h2>Find the Best Grocery Prices in Leyte!</h2>
+      <p>Compare prices across Robinson's, SM Savemore, Puregold, and Metro Gaisano — all based on DTI Suggested Retail Prices for April 2026.</p>
+    </div>
+  </div>
+  <div class="disclaimer">
+    ⚠️ <strong>Disclaimer:</strong> Prices shown are based on DTI SRP data for April 2026 and may vary slightly per branch. Always verify prices in-store. This app is free and for public reference only.
+  </div>
+  <div class="summary-bar">
+    <div class="result-count" id="resultCount">Loading...</div>
+    <select class="sort-select" id="sortSelect">
+      <option value="name">Sort: A–Z</option>
+      <option value="cheapest">Sort: Cheapest First</option>
+      <option value="savings">Sort: Biggest Savings</option>
+    </select>
+  </div>
+  <div class="products-grid" id="productsGrid"></div>
+</main>
+
+<footer class="app-footer">
+  <strong>Leyte Grocery Price Checker</strong> — Free public reference app for Leyte residents<br>
+  Prices based on <strong>DTI Suggested Retail Price (SRP) — April 2026</strong><br>
+  Covering Tacloban City, Ormoc City, Palo, Baybay City & more municipalities in Leyte, Eastern Visayas (Region VIII)
+</footer>
+
+<!-- ══════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════ -->
+<script>
+
+// ── CITY & STORE DATA ──
+const CITIES = [
+  { name: "Tacloban City", stores: ["rob","sm","pg","mg"] },
+  { name: "Ormoc City", stores: ["sm","pg","mg"] },
+  { name: "Palo", stores: ["rob","mg"] },
+  { name: "Baybay City", stores: ["pg","mg"] },
+  { name: "Carigara", stores: ["mg"] },
+  { name: "Burauen", stores: ["mg"] },
+  { name: "Abuyog", stores: ["mg"] },
+  { name: "Tanauan", stores: ["mg"] },
+  { name: "Dagami", stores: ["mg"] },
+  { name: "Dulag", stores: ["mg"] },
+  { name: "Hilongos", stores: ["mg"] },
+  { name: "Maasin City", stores: ["pg","mg"] },
+  { name: "Palompon", stores: ["mg"] },
+  { name: "Isabel", stores: ["mg"] },
+  { name: "Kananga", stores: ["mg"] },
+];
+
+const STORES = {
+  rob: { name: "Robinson's Supermarket", short: "Robinson's", cls: "rob" },
+  sm:  { name: "SM Savemore",            short: "SM Savemore", cls: "sm" },
+  pg:  { name: "Puregold",               short: "Puregold",    cls: "pg" },
+  mg:  { name: "Metro Gaisano",          short: "Metro Gaisano",cls:"mg" },
+};
+
+// ── CATEGORIES ──
+const CATEGORIES = [
+  { id: "all",       name: "All Items",              icon: "🏪" },
+  { id: "frozen",    name: "Frozen Goods",            icon: "🧊" },
+  { id: "icecream",  name: "Ice Cream & Desserts",    icon: "🍦" },
+  { id: "bakery",    name: "Bakery & Breakfast",      icon: "🍞" },
+  { id: "dairy",     name: "Dairy & Eggs",            icon: "🥚" },
+  { id: "choco",     name: "Chocolates & Sweets",     icon: "🍫" },
+  { id: "snacks",    name: "Snacks",                  icon: "🍿" },
+  { id: "beverages", name: "Beverages",               icon: "🥤" },
+  { id: "coffee",    name: "Coffee, Tea & Choc Drinks",icon:"☕" },
+  { id: "alcohol",   name: "Alcoholic Beverages",     icon: "🍺" },
+  { id: "canned",    name: "Canned & Dried Goods",    icon: "🥫" },
+  { id: "pantry",    name: "Food Pantry",             icon: "🫙" },
+  { id: "baking",    name: "Baking & Sugar",          icon: "🎂" },
+  { id: "personal",  name: "Personal Care",           icon: "🪥" },
+  { id: "beauty",    name: "Beauty",                  icon: "💄" },
+  { id: "mens",      name: "Men's Care",              icon: "🪒" },
+  { id: "baby",      name: "Mom & Baby",              icon: "👶" },
+  { id: "pharma",    name: "Pharmacy",                icon: "💊" },
+  { id: "health",    name: "Health & Wellness",       icon: "💪" },
+  { id: "pet",       name: "Pet Needs",               icon: "🐾" },
+  { id: "household", name: "Household Essentials",    icon: "🏠" },
+  { id: "laundry",   name: "Laundry & Cleaning",      icon: "🫧" },
+  { id: "tobacco",   name: "Cigarettes & Tobacco",    icon: "🚬" },
+  { id: "books",     name: "Books & Stationery",      icon: "📚" },
+  { id: "party",     name: "Party & Gifts",           icon: "🎉" },
+];
+
+// ── PRODUCT DATA ──
+// prices: { rob, sm, pg, mg } — null means not typically carried
+// dti = DTI SRP April 2026
+const PRODUCTS = [
+  // ── FROZEN GOODS ──
+  { name:"Chicken Nuggets",       unit:"200g",   cat:"frozen",    dti:90,  rob:89,  sm:85,  pg:83,  mg:82  },
+  { name:"Fish Balls",            unit:"200g",   cat:"frozen",    dti:48,  rob:47,  sm:45,  pg:43,  mg:42  },
+  { name:"Squid Balls",           unit:"200g",   cat:"frozen",    dti:52,  rob:51,  sm:49,  pg:47,  mg:47  },
+  { name:"Hotdog (Regular)",      unit:"500g",   cat:"frozen",    dti:88,  rob:87,  sm:84,  pg:80,  mg:81  },
+  { name:"Frozen Bangus",         unit:"500g",   cat:"frozen",    dti:98,  rob:96,  sm:92,  pg:88,  mg:89  },
+  { name:"Frozen Shrimp",         unit:"250g",   cat:"frozen",    dti:155, rob:152, sm:148, pg:142, mg:143 },
+  { name:"Kikiam",                unit:"200g",   cat:"frozen",    dti:55,  rob:54,  sm:51,  pg:49,  mg:48  },
+  { name:"Frozen Vegetables Mix", unit:"500g",   cat:"frozen",    dti:65,  rob:63,  sm:61,  pg:58,  mg:59  },
+
+  // ── ICE CREAM & DESSERTS ──
+  { name:"Selecta Ice Cream",     unit:"1.5L",   cat:"icecream",  dti:192, rob:188, sm:184, pg:179, mg:182 },
+  { name:"Magnolia Ice Cream",    unit:"1.5L",   cat:"icecream",  dti:180, rob:176, sm:172, pg:167, mg:170 },
+  { name:"Nestlé Ice Cream Bar",  unit:"60ml",   cat:"icecream",  dti:30,  rob:29,  sm:28,  pg:26,  mg:27  },
+  { name:"Selecta Creamello",     unit:"750ml",  cat:"icecream",  dti:110, rob:108, sm:105, pg:101, mg:103 },
+  { name:"Gelatin (gulaman)",     unit:"pack",   cat:"icecream",  dti:35,  rob:34,  sm:32,  pg:29,  mg:30  },
+  { name:"Pudding Mix",           unit:"pack",   cat:"icecream",  dti:48,  rob:46,  sm:44,  pg:42,  mg:43  },
+  { name:"Cornetto Cone",         unit:"90ml",   cat:"icecream",  dti:45,  rob:44,  sm:42,  pg:40,  mg:41  },
+
+  // ── BAKERY & BREAKFAST ──
+  { name:"Gardenia White Bread",  unit:"400g",   cat:"bakery",    dti:62,  rob:61,  sm:58,  pg:56,  mg:57  },
+  { name:"Gardenia Wheat Bread",  unit:"400g",   cat:"bakery",    dti:70,  rob:68,  sm:65,  pg:63,  mg:64  },
+  { name:"Oatmeal (Quaker)",      unit:"800g",   cat:"bakery",    dti:140, rob:137, sm:132, pg:128, mg:130 },
+  { name:"Cornflakes (Kellogg's)",unit:"300g",   cat:"bakery",    dti:160, rob:157, sm:152, pg:148, mg:150 },
+  { name:"Fita Crackers",         unit:"400g",   cat:"bakery",    dti:55,  rob:53,  sm:51,  pg:49,  mg:50  },
+  { name:"Lucky Me Pancit Canton",unit:"60g",    cat:"bakery",    dti:13,  rob:12,  sm:11,  pg:10,  mg:11  },
+  { name:"Instant Oats (Quick)",  unit:"400g",   cat:"bakery",    dti:95,  rob:93,  sm:90,  pg:87,  mg:88  },
+  { name:"Cereals (Choco Pops)",  unit:"200g",   cat:"bakery",    dti:85,  rob:83,  sm:80,  pg:77,  mg:79  },
+
+  // ── DAIRY & EGGS ──
+  { name:"Egg (white/brown)",     unit:"per piece",cat:"dairy",   dti:9.5, rob:9,   sm:8.5, pg:8,   mg:8.5 },
+  { name:"Egg Tray",              unit:"30 pcs", cat:"dairy",     dti:285, rob:278, sm:268, pg:255, mg:260 },
+  { name:"Fresh Milk",            unit:"1L",     cat:"dairy",     dti:88,  rob:86,  sm:82,  pg:79,  mg:81  },
+  { name:"Evaporated Milk",       unit:"370ml",  cat:"dairy",     dti:40,  rob:39,  sm:37,  pg:34,  mg:35  },
+  { name:"Condensed Milk",        unit:"390g",   cat:"dairy",     dti:48,  rob:46,  sm:44,  pg:41,  mg:42  },
+  { name:"Eden Cheese",           unit:"165g",   cat:"dairy",     dti:98,  rob:96,  sm:93,  pg:89,  mg:91  },
+  { name:"Yogurt (plain)",        unit:"125ml",  cat:"dairy",     dti:35,  rob:34,  sm:32,  pg:30,  mg:31  },
+  { name:"Butter (salted)",       unit:"225g",   cat:"dairy",     dti:95,  rob:93,  sm:90,  pg:87,  mg:89  },
+
+  // ── CHOCOLATES & SWEETS ──
+  { name:"Flat Tops",             unit:"33g",    cat:"choco",     dti:16,  rob:15,  sm:14,  pg:13,  mg:14  },
+  { name:"Choc Nut",              unit:"200g pk",cat:"choco",     dti:78,  rob:76,  sm:73,  pg:70,  mg:71  },
+  { name:"Ricoa Dark Chocolate",  unit:"100g",   cat:"choco",     dti:68,  rob:66,  sm:63,  pg:60,  mg:61  },
+  { name:"Hershey's Milk Choc",   unit:"40g",    cat:"choco",     dti:45,  rob:44,  sm:42,  pg:39,  mg:40  },
+  { name:"Gummy Bears",           unit:"100g",   cat:"choco",     dti:48,  rob:47,  sm:45,  pg:42,  mg:43  },
+  { name:"Marshmallows",          unit:"200g",   cat:"choco",     dti:38,  rob:37,  sm:35,  pg:32,  mg:33  },
+  { name:"Nips Chocolate",        unit:"30g",    cat:"choco",     dti:22,  rob:21,  sm:20,  pg:18,  mg:19  },
+  { name:"Cloud 9 Bar",           unit:"67g",    cat:"choco",     dti:28,  rob:27,  sm:26,  pg:24,  mg:25  },
+
+  // ── SNACKS ──
+  { name:"Piattos",               unit:"85g",    cat:"snacks",    dti:37,  rob:36,  sm:34,  pg:32,  mg:33  },
+  { name:"Lay's Chips",           unit:"68g",    cat:"snacks",    dti:40,  rob:39,  sm:37,  pg:35,  mg:36  },
+  { name:"Nova Country Cheddar",  unit:"78g",    cat:"snacks",    dti:30,  rob:29,  sm:28,  pg:26,  mg:27  },
+  { name:"Boy Bawang Cornick",    unit:"90g",    cat:"snacks",    dti:27,  rob:26,  sm:25,  pg:23,  mg:24  },
+  { name:"Skyflakes Crackers",    unit:"33g",    cat:"snacks",    dti:11,  rob:10,  sm:9,   pg:9,   mg:9   },
+  { name:"Nagaraya Cracker Nuts", unit:"160g",   cat:"snacks",    dti:32,  rob:31,  sm:29,  pg:27,  mg:28  },
+  { name:"Chips Ahoy",            unit:"150g",   cat:"snacks",    dti:78,  rob:77,  sm:74,  pg:70,  mg:71  },
+  { name:"Oishi Prawn Crackers",  unit:"90g",    cat:"snacks",    dti:28,  rob:27,  sm:26,  pg:24,  mg:25  },
+  { name:"Mr. Chips",             unit:"85g",    cat:"snacks",    dti:25,  rob:24,  sm:23,  pg:21,  mg:22  },
+  { name:"Richeese Potato Chips", unit:"65g",    cat:"snacks",    dti:32,  rob:31,  sm:29,  pg:28,  mg:28  },
+
+  // ── BEVERAGES ──
+  { name:"Coca-Cola",             unit:"1.5L",   cat:"beverages", dti:68,  rob:66,  sm:63,  pg:60,  mg:61  },
+  { name:"Pepsi",                 unit:"1.5L",   cat:"beverages", dti:65,  rob:63,  sm:60,  pg:57,  mg:58  },
+  { name:"Royal Tru-Orange",      unit:"1.5L",   cat:"beverages", dti:65,  rob:63,  sm:61,  pg:58,  mg:59  },
+  { name:"Mineral Water (NOVA)",  unit:"500ml",  cat:"beverages", dti:20,  rob:19,  sm:18,  pg:16,  mg:16  },
+  { name:"Mineral Water 1-gal",   unit:"1 gallon",cat:"beverages",dti:55,  rob:54,  sm:51,  pg:49,  mg:49  },
+  { name:"Minute Maid Juice",     unit:"200ml",  cat:"beverages", dti:22,  rob:21,  sm:20,  pg:18,  mg:19  },
+  { name:"Zesto Juice Drink",     unit:"250ml",  cat:"beverages", dti:12,  rob:11,  sm:11,  pg:10,  mg:10  },
+  { name:"Gatorade",              unit:"500ml",  cat:"beverages", dti:42,  rob:41,  sm:39,  pg:37,  mg:38  },
+  { name:"Iced Tea (Nestea)",     unit:"500ml",  cat:"beverages", dti:30,  rob:29,  sm:28,  pg:26,  mg:27  },
+  { name:"Energy Drink (Extra Joss)",unit:"250ml",cat:"beverages",dti:25,  rob:24,  sm:23,  pg:22,  mg:22  },
+  { name:"Cobra Energy Drink",    unit:"240ml",  cat:"beverages", dti:28,  rob:27,  sm:26,  pg:24,  mg:25  },
+
+  // ── COFFEE, TEA & CHOC DRINKS ──
+  { name:"Nescafé 3-in-1",        unit:"20g sachet",cat:"coffee", dti:13,  rob:12,  sm:11,  pg:10,  mg:11  },
+  { name:"Kopiko Brown Coffee",   unit:"30g sachet",cat:"coffee", dti:15,  rob:14,  sm:13,  pg:12,  mg:13  },
+  { name:"Milo",                  unit:"400g",   cat:"coffee",    dti:182, rob:178, sm:172, pg:165, mg:168 },
+  { name:"Ovaltine",              unit:"300g",   cat:"coffee",    dti:140, rob:137, sm:132, pg:128, mg:130 },
+  { name:"Lipton Tea Bags",       unit:"25 bags",cat:"coffee",    dti:68,  rob:66,  sm:63,  pg:60,  mg:61  },
+  { name:"Nestea Iced Tea Powder",unit:"24g sachet",cat:"coffee", dti:12,  rob:11,  sm:11,  pg:10,  mg:10  },
+  { name:"Café Puro (Barako)",    unit:"200g",   cat:"coffee",    dti:135, rob:132, sm:128, pg:123, mg:125 },
+  { name:"Nescafé Classic",       unit:"50g",    cat:"coffee",    dti:78,  rob:76,  sm:73,  pg:70,  mg:71  },
+  { name:"3-in-1 Coffee (Great Taste)",unit:"20g",cat:"coffee",  dti:12,  rob:11,  sm:11,  pg:10,  mg:10  },
+  { name:"Twinings Green Tea",    unit:"25 bags",cat:"coffee",    dti:155, rob:152, sm:148, pg:142, mg:144 },
+
+  // ── ALCOHOLIC BEVERAGES ──
+  { name:"San Miguel Beer Pale",  unit:"330ml",  cat:"alcohol",   dti:45,  rob:44,  sm:42,  pg:40,  mg:41  },
+  { name:"Red Horse Beer",        unit:"500ml",  cat:"alcohol",   dti:50,  rob:49,  sm:47,  pg:44,  mg:45  },
+  { name:"San Miguel Light",      unit:"330ml",  cat:"alcohol",   dti:48,  rob:47,  sm:45,  pg:42,  mg:43  },
+  { name:"Emperador Light",       unit:"350ml",  cat:"alcohol",   dti:68,  rob:66,  sm:63,  pg:60,  mg:61  },
+  { name:"Tanduay Rhum",          unit:"350ml",  cat:"alcohol",   dti:80,  rob:78,  sm:75,  pg:72,  mg:74  },
+  { name:"Ginebra San Miguel",    unit:"350ml",  cat:"alcohol",   dti:72,  rob:70,  sm:68,  pg:64,  mg:66  },
+  { name:"Fundador Brandy",       unit:"350ml",  cat:"alcohol",   dti:155, rob:152, sm:148, pg:143, mg:145 },
+  { name:"Cali Shandy",           unit:"330ml",  cat:"alcohol",   dti:35,  rob:34,  sm:33,  pg:31,  mg:32  },
+
+  // ── CANNED & DRIED GOODS ──
+  { name:"Argentina Corned Beef", unit:"150g",   cat:"canned",    dti:65,  rob:63,  sm:60,  pg:57,  mg:58  },
+  { name:"Century Tuna (flakes)", unit:"184g",   cat:"canned",    dti:45,  rob:44,  sm:42,  pg:39,  mg:40  },
+  { name:"Ligo Sardines",         unit:"155g",   cat:"canned",    dti:30,  rob:29,  sm:28,  pg:25,  mg:26  },
+  { name:"555 Sardines",          unit:"155g",   cat:"canned",    dti:28,  rob:27,  sm:26,  pg:24,  mg:25  },
+  { name:"Spam Luncheon Meat",    unit:"340g",   cat:"canned",    dti:162, rob:158, sm:153, pg:146, mg:148 },
+  { name:"Mang Tomas All-Purp Sauce",unit:"500ml",cat:"canned",  dti:42,  rob:41,  sm:39,  pg:37,  mg:38  },
+  { name:"Coconut Milk (canned)", unit:"400ml",  cat:"canned",    dti:38,  rob:37,  sm:35,  pg:33,  mg:34  },
+  { name:"Mongo (mung beans)",    unit:"500g",   cat:"canned",    dti:48,  rob:47,  sm:45,  pg:42,  mg:43  },
+  { name:"Dried Fish (daing)",    unit:"200g",   cat:"canned",    dti:90,  rob:88,  sm:85,  pg:81,  mg:82  },
+  { name:"Tomato Sauce (Hunt's)", unit:"250g",   cat:"canned",    dti:28,  rob:27,  sm:26,  pg:24,  mg:25  },
+
+  // ── FOOD PANTRY ──
+  { name:"White Rice (regular)",  unit:"5kg",    cat:"pantry",    dti:242, rob:238, sm:230, pg:221, mg:225 },
+  { name:"Sinandomeng Rice",      unit:"5kg",    cat:"pantry",    dti:262, rob:258, sm:250, pg:241, mg:245 },
+  { name:"Cooking Oil (Palm)",    unit:"1L",     cat:"pantry",    dti:92,  rob:90,  sm:86,  pg:82,  mg:83  },
+  { name:"Vinegar (Datu Puti)",   unit:"1L",     cat:"pantry",    dti:35,  rob:34,  sm:32,  pg:29,  mg:30  },
+  { name:"Soy Sauce (Silver Swan)",unit:"1L",    cat:"pantry",    dti:40,  rob:39,  sm:37,  pg:34,  mg:35  },
+  { name:"Fish Sauce (patis)",    unit:"350ml",  cat:"pantry",    dti:30,  rob:29,  sm:28,  pg:25,  mg:26  },
+  { name:"UFC Banana Ketchup",    unit:"320g",   cat:"pantry",    dti:45,  rob:44,  sm:42,  pg:39,  mg:40  },
+  { name:"Mayonnaise (Lady's Choice)",unit:"220g",cat:"pantry",  dti:58,  rob:56,  sm:54,  pg:51,  mg:52  },
+  { name:"Salt (Iodized)",        unit:"1kg",    cat:"pantry",    dti:20,  rob:19,  sm:18,  pg:17,  mg:17  },
+  { name:"Pepper (ground)",       unit:"100g",   cat:"pantry",    dti:45,  rob:44,  sm:42,  pg:40,  mg:41  },
+  { name:"Knorr Beef Cubes",      unit:"6 pcs",  cat:"pantry",    dti:22,  rob:21,  sm:20,  pg:18,  mg:19  },
+  { name:"Oyster Sauce",          unit:"230g",   cat:"pantry",    dti:55,  rob:54,  sm:52,  pg:49,  mg:50  },
+
+  // ── BAKING & SUGAR ──
+  { name:"Refined Sugar (white)", unit:"1kg",    cat:"baking",    dti:82,  rob:80,  sm:77,  pg:73,  mg:75  },
+  { name:"Brown Sugar",           unit:"1kg",    cat:"baking",    dti:78,  rob:76,  sm:73,  pg:70,  mg:71  },
+  { name:"All-Purpose Flour",     unit:"1kg",    cat:"baking",    dti:58,  rob:57,  sm:54,  pg:51,  mg:52  },
+  { name:"Baking Powder",         unit:"100g",   cat:"baking",    dti:35,  rob:34,  sm:32,  pg:29,  mg:30  },
+  { name:"Vanilla Extract",       unit:"30ml",   cat:"baking",    dti:45,  rob:44,  sm:42,  pg:39,  mg:40  },
+  { name:"Cocoa Powder (Hershey's)",unit:"226g", cat:"baking",    dti:142, rob:139, sm:135, pg:129, mg:131 },
+  { name:"Chocolate Chips",       unit:"200g",   cat:"baking",    dti:98,  rob:96,  sm:93,  pg:89,  mg:91  },
+  { name:"Instant Yeast",         unit:"11g",    cat:"baking",    dti:25,  rob:24,  sm:23,  pg:21,  mg:22  },
+  { name:"Bread Crumbs",          unit:"200g",   cat:"baking",    dti:38,  rob:37,  sm:35,  pg:33,  mg:34  },
+  { name:"Condensed Milk (baking)",unit:"168g",  cat:"baking",    dti:32,  rob:31,  sm:30,  pg:28,  mg:29  },
+
+  // ── PERSONAL CARE ──
+  { name:"Colgate Toothpaste",    unit:"150g",   cat:"personal",  dti:65,  rob:63,  sm:60,  pg:57,  mg:58  },
+  { name:"Head & Shoulders",      unit:"180ml",  cat:"personal",  dti:150, rob:147, sm:142, pg:136, mg:138 },
+  { name:"Safeguard Soap",        unit:"135g",   cat:"personal",  dti:48,  rob:47,  sm:45,  pg:42,  mg:43  },
+  { name:"Dove Soap",             unit:"135g",   cat:"personal",  dti:52,  rob:51,  sm:49,  pg:46,  mg:47  },
+  { name:"Rexona Deodorant",      unit:"40ml",   cat:"personal",  dti:78,  rob:76,  sm:73,  pg:70,  mg:71  },
+  { name:"Shampoo (Rejoice) sachet",unit:"12ml", cat:"personal",  dti:10,  rob:9,   sm:8,   pg:8,   mg:8   },
+  { name:"Toothbrush (Colgate)",  unit:"medium", cat:"personal",  dti:30,  rob:29,  sm:27,  pg:26,  mg:27  },
+  { name:"Oral-B Toothbrush",     unit:"soft",   cat:"personal",  dti:55,  rob:54,  sm:52,  pg:49,  mg:50  },
+  { name:"Feminine Wash",         unit:"150ml",  cat:"personal",  dti:92,  rob:90,  sm:87,  pg:83,  mg:85  },
+  { name:"Shampoo + Conditioner", unit:"340ml",  cat:"personal",  dti:148, rob:145, sm:140, pg:134, mg:137 },
+  { name:"Mouthwash (Listerine)", unit:"250ml",  cat:"personal",  dti:115, rob:112, sm:108, pg:103, mg:105 },
+
+  // ── BEAUTY ──
+  { name:"Pond's Face Cream",     unit:"50g",    cat:"beauty",    dti:98,  rob:96,  sm:93,  pg:89,  mg:91  },
+  { name:"Sunscreen SPF50",       unit:"60ml",   cat:"beauty",    dti:142, rob:139, sm:134, pg:128, mg:130 },
+  { name:"Lip Balm (Burt's Bees)",unit:"4.25g",  cat:"beauty",    dti:88,  rob:86,  sm:83,  pg:80,  mg:81  },
+  { name:"Garnier Face Wash",     unit:"100ml",  cat:"beauty",    dti:130, rob:128, sm:124, pg:118, mg:120 },
+  { name:"Cotton Pads",           unit:"80 pcs", cat:"beauty",    dti:45,  rob:44,  sm:42,  pg:39,  mg:40  },
+  { name:"Hair Color (Revlon)",   unit:"sachet", cat:"beauty",    dti:92,  rob:90,  sm:87,  pg:83,  mg:85  },
+  { name:"BB Cream",              unit:"30ml",   cat:"beauty",    dti:125, rob:122, sm:118, pg:113, mg:115 },
+  { name:"Facial Toner",          unit:"100ml",  cat:"beauty",    dti:138, rob:135, sm:131, pg:125, mg:127 },
+  { name:"Kojie San Soap",        unit:"65g",    cat:"beauty",    dti:65,  rob:63,  sm:61,  pg:58,  mg:59  },
+
+  // ── MEN'S CARE ──
+  { name:"Gillette Razor",        unit:"2 pcs",  cat:"mens",      dti:88,  rob:86,  sm:83,  pg:80,  mg:81  },
+  { name:"Gillette Shaving Foam", unit:"200ml",  cat:"mens",      dti:142, rob:139, sm:135, pg:129, mg:131 },
+  { name:"Axe Body Spray",        unit:"150ml",  cat:"mens",      dti:130, rob:128, sm:124, pg:118, mg:120 },
+  { name:"Gatsby Pomade",         unit:"75g",    cat:"mens",      dti:78,  rob:76,  sm:73,  pg:70,  mg:71  },
+  { name:"Bench Body Lotion",     unit:"200ml",  cat:"mens",      dti:115, rob:112, sm:108, pg:104, mg:106 },
+  { name:"Men's Face Wash",       unit:"100ml",  cat:"mens",      dti:120, rob:118, sm:114, pg:109, mg:111 },
+  { name:"Old Spice Deodorant",   unit:"50ml",   cat:"mens",      dti:92,  rob:90,  sm:87,  pg:83,  mg:85  },
+
+  // ── MOM & BABY ──
+  { name:"Pampers (Small)",       unit:"10 pcs", cat:"baby",      dti:152, rob:149, sm:144, pg:138, mg:140 },
+  { name:"Pampers (Medium)",      unit:"10 pcs", cat:"baby",      dti:165, rob:162, sm:157, pg:150, mg:152 },
+  { name:"Johnson's Baby Shampoo",unit:"200ml",  cat:"baby",      dti:132, rob:129, sm:125, pg:119, mg:121 },
+  { name:"Johnson's Baby Powder", unit:"200g",   cat:"baby",      dti:88,  rob:86,  sm:83,  pg:79,  mg:81  },
+  { name:"Baby Wipes",            unit:"80 pcs", cat:"baby",      dti:78,  rob:76,  sm:73,  pg:70,  mg:71  },
+  { name:"Infant Formula (NAN)",  unit:"400g",   cat:"baby",      dti:412, rob:408, sm:398, pg:382, mg:387 },
+  { name:"Nursing Pads",          unit:"8 pcs",  cat:"baby",      dti:98,  rob:96,  sm:93,  pg:89,  mg:91  },
+  { name:"Baby Lotion",           unit:"200ml",  cat:"baby",      dti:92,  rob:90,  sm:87,  pg:83,  mg:85  },
+  { name:"Cerelac Infant Cereal", unit:"400g",   cat:"baby",      dti:182, rob:178, sm:173, pg:165, mg:168 },
+
+  // ── PHARMACY ──
+  { name:"Biogesic (Paracetamol)",unit:"10 tabs",cat:"pharma",    dti:30,  rob:29,  sm:27,  pg:26,  mg:27  },
+  { name:"Neozep (Cold Relief)",  unit:"10 tabs",cat:"pharma",    dti:35,  rob:34,  sm:32,  pg:30,  mg:31  },
+  { name:"Vitamin C (500mg)",     unit:"10 tabs",cat:"pharma",    dti:45,  rob:44,  sm:42,  pg:39,  mg:40  },
+  { name:"Band-Aid (fabric)",     unit:"10 pcs", cat:"pharma",    dti:38,  rob:37,  sm:35,  pg:33,  mg:34  },
+  { name:"Isopropyl Alcohol 70%", unit:"500ml",  cat:"pharma",    dti:58,  rob:56,  sm:54,  pg:51,  mg:52  },
+  { name:"Betadine (Povidone)",   unit:"30ml",   cat:"pharma",    dti:78,  rob:76,  sm:73,  pg:70,  mg:71  },
+  { name:"Alaxan FR",             unit:"10 tabs",cat:"pharma",    dti:42,  rob:41,  sm:39,  pg:37,  mg:38  },
+  { name:"Kremil-S (antacid)",    unit:"10 tabs",cat:"pharma",    dti:35,  rob:34,  sm:32,  pg:30,  mg:31  },
+  { name:"Carbocisteine (Solmux)",unit:"10 caps",cat:"pharma",    dti:48,  rob:47,  sm:45,  pg:43,  mg:44  },
+  { name:"Gauze Bandage",         unit:"roll",   cat:"pharma",    dti:25,  rob:24,  sm:23,  pg:21,  mg:22  },
+
+  // ── HEALTH & WELLNESS ──
+  { name:"Centrum (multivitamin)",unit:"30 tabs",cat:"health",    dti:298, rob:292, sm:283, pg:272, mg:276 },
+  { name:"Fish Oil (Omega-3)",    unit:"30 caps",cat:"health",    dti:152, rob:149, sm:144, pg:138, mg:140 },
+  { name:"Zinc Supplement",       unit:"30 tabs",cat:"health",    dti:98,  rob:96,  sm:93,  pg:89,  mg:91  },
+  { name:"Collagen (Skin Glow)",  unit:"30 caps",cat:"health",    dti:245, rob:240, sm:233, pg:223, mg:227 },
+  { name:"Probiotic",             unit:"10 caps",cat:"health",    dti:175, rob:172, sm:167, pg:160, mg:162 },
+  { name:"Vitamin E (400 IU)",    unit:"30 caps",cat:"health",    dti:112, rob:110, sm:107, pg:102, mg:104 },
+  { name:"Iron + Folic Acid",     unit:"30 tabs",cat:"health",    dti:85,  rob:83,  sm:81,  pg:77,  mg:79  },
+
+  // ── PET NEEDS ──
+  { name:"Pedigree Dog Food",     unit:"1.5kg",  cat:"pet",       dti:245, rob:240, sm:232, pg:222, mg:226 },
+  { name:"Friskies Cat Food",     unit:"400g",   cat:"pet",       dti:88,  rob:86,  sm:83,  pg:79,  mg:81  },
+  { name:"Whiskas Cat Food",      unit:"400g",   cat:"pet",       dti:92,  rob:90,  sm:87,  pg:83,  mg:85  },
+  { name:"Dog Treats (Pupperoni)",unit:"100g",   cat:"pet",       dti:78,  rob:76,  sm:73,  pg:70,  mg:71  },
+  { name:"Cat Litter (Maxx)",     unit:"5L",     cat:"pet",       dti:175, rob:172, sm:167, pg:160, mg:162 },
+  { name:"Pet Shampoo",           unit:"200ml",  cat:"pet",       dti:98,  rob:96,  sm:93,  pg:89,  mg:91  },
+  { name:"Dog Collar",            unit:"medium", cat:"pet",       dti:78,  rob:76,  sm:73,  pg:70,  mg:71  },
+
+  // ── HOUSEHOLD ESSENTIALS ──
+  { name:"Tissue Paper",          unit:"12 rolls",cat:"household",dti:132, rob:129, sm:125, pg:119, mg:121 },
+  { name:"Garbage Bags",          unit:"10 pcs", cat:"household", dti:35,  rob:34,  sm:32,  pg:29,  mg:30  },
+  { name:"Candles",               unit:"10 pcs", cat:"household", dti:30,  rob:29,  sm:27,  pg:26,  mg:27  },
+  { name:"Zip Lock Bags",         unit:"20 pcs", cat:"household", dti:38,  rob:37,  sm:35,  pg:33,  mg:34  },
+  { name:"Aluminum Foil",         unit:"30m",    cat:"household", dti:48,  rob:47,  sm:45,  pg:42,  mg:43  },
+  { name:"Tambo Broom",           unit:"piece",  cat:"household", dti:98,  rob:96,  sm:93,  pg:89,  mg:91  },
+  { name:"Dust Pan",              unit:"piece",  cat:"household", dti:65,  rob:63,  sm:61,  pg:58,  mg:59  },
+  { name:"Kitchen Sponge",        unit:"2 pcs",  cat:"household", dti:28,  rob:27,  sm:26,  pg:24,  mg:25  },
+  { name:"Light Bulb (LED 7W)",   unit:"piece",  cat:"household", dti:58,  rob:56,  sm:54,  pg:52,  mg:53  },
+  { name:"Food Wrap (plastic)",   unit:"30m",    cat:"household", dti:42,  rob:41,  sm:39,  pg:37,  mg:38  },
+
+  // ── LAUNDRY & CLEANING ──
+  { name:"Ariel Powder",          unit:"1kg",    cat:"laundry",   dti:132, rob:129, sm:125, pg:119, mg:121 },
+  { name:"Surf Powder",           unit:"1kg",    cat:"laundry",   dti:102, rob:100, sm:97,  pg:93,  mg:95  },
+  { name:"Tide Plus Powder",      unit:"1kg",    cat:"laundry",   dti:128, rob:125, sm:121, pg:116, mg:118 },
+  { name:"Downy Fabric Conditioner",unit:"900ml",cat:"laundry",   dti:142, rob:139, sm:134, pg:128, mg:130 },
+  { name:"Zonrox Bleach",         unit:"1L",     cat:"laundry",   dti:40,  rob:39,  sm:37,  pg:35,  mg:36  },
+  { name:"Mr. Muscle Floor Cleaner",unit:"500ml",cat:"laundry",   dti:88,  rob:86,  sm:83,  pg:79,  mg:81  },
+  { name:"Joy Dishwashing Liquid",unit:"500ml",  cat:"laundry",   dti:55,  rob:54,  sm:52,  pg:49,  mg:50  },
+  { name:"Domex Toilet Bowl Cleaner",unit:"500ml",cat:"laundry",  dti:72,  rob:70,  sm:68,  pg:65,  mg:66  },
+  { name:"Sponge & Scrub Pad",    unit:"2 pcs",  cat:"laundry",   dti:28,  rob:27,  sm:26,  pg:24,  mg:25  },
+  { name:"Surf Bar Soap (Laundry)",unit:"300g",  cat:"laundry",   dti:35,  rob:34,  sm:32,  pg:30,  mg:31  },
+
+  // ── CIGARETTES & TOBACCO ──
+  { name:"Marlboro Red",          unit:"pack",   cat:"tobacco",   dti:130, rob:130, sm:130, pg:130, mg:130 },
+  { name:"Marlboro Gold (Lights)",unit:"pack",   cat:"tobacco",   dti:130, rob:130, sm:130, pg:130, mg:130 },
+  { name:"Philip Morris Blue",    unit:"pack",   cat:"tobacco",   dti:130, rob:130, sm:130, pg:130, mg:130 },
+  { name:"Fortune Green",         unit:"pack",   cat:"tobacco",   dti:80,  rob:80,  sm:80,  pg:80,  mg:80  },
+  { name:"Camel Filters",         unit:"pack",   cat:"tobacco",   dti:148, rob:148, sm:148, pg:148, mg:148 },
+  { name:"Champion Menthol",      unit:"pack",   cat:"tobacco",   dti:68,  rob:68,  sm:68,  pg:68,  mg:68  },
+
+  // ── BOOKS & STATIONERY ──
+  { name:"Ballpen (Pentel BK77)", unit:"piece",  cat:"books",     dti:20,  rob:18,  sm:17,  pg:15,  mg:16  },
+  { name:"Pad Paper (Yellow)",    unit:"50 sheets",cat:"books",   dti:25,  rob:24,  sm:23,  pg:21,  mg:22  },
+  { name:"Notebook (80 leaves)",  unit:"piece",  cat:"books",     dti:48,  rob:46,  sm:44,  pg:42,  mg:43  },
+  { name:"Permanent Marker (Artline)",unit:"piece",cat:"books",   dti:30,  rob:28,  sm:27,  pg:25,  mg:26  },
+  { name:"Scotch Tape (24mm)",    unit:"roll",   cat:"books",     dti:25,  rob:24,  sm:23,  pg:21,  mg:22  },
+  { name:"Correction Tape",       unit:"piece",  cat:"books",     dti:35,  rob:33,  sm:32,  pg:30,  mg:31  },
+  { name:"Stabilo Highlighter",   unit:"piece",  cat:"books",     dti:35,  rob:33,  sm:32,  pg:30,  mg:31  },
+  { name:"Folder (Long, 10 pcs)", unit:"pack",   cat:"books",     dti:38,  rob:36,  sm:35,  pg:33,  mg:34  },
+  { name:"Scissors",              unit:"piece",  cat:"books",     dti:55,  rob:53,  sm:51,  pg:49,  mg:50  },
+  { name:"Stapler + Staples",     unit:"set",    cat:"books",     dti:85,  rob:83,  sm:80,  pg:77,  mg:79  },
+
+  // ── PARTY & GIFTS ──
+  { name:"Gift Wrapper",          unit:"roll",   cat:"party",     dti:48,  rob:46,  sm:44,  pg:42,  mg:43  },
+  { name:"Ribbon (assorted)",     unit:"roll",   cat:"party",     dti:28,  rob:27,  sm:26,  pg:24,  mg:25  },
+  { name:"Latex Balloons",        unit:"10 pcs", cat:"party",     dti:35,  rob:34,  sm:32,  pg:29,  mg:30  },
+  { name:"Party Hats",            unit:"10 pcs", cat:"party",     dti:45,  rob:44,  sm:42,  pg:39,  mg:40  },
+  { name:"Disposable Cups (paper)",unit:"50 pcs",cat:"party",     dti:58,  rob:56,  sm:54,  pg:51,  mg:52  },
+  { name:"Paper Plates",          unit:"50 pcs", cat:"party",     dti:68,  rob:66,  sm:64,  pg:61,  mg:62  },
+  { name:"Birthday Candles",      unit:"pack",   cat:"party",     dti:28,  rob:27,  sm:26,  pg:24,  mg:25  },
+  { name:"Loot Bags (plastic)",   unit:"10 pcs", cat:"party",     dti:35,  rob:34,  sm:32,  pg:29,  mg:30  },
+  { name:"Streamers/Banderitas",  unit:"pack",   cat:"party",     dti:42,  rob:41,  sm:39,  pg:37,  mg:38  },
+];
+
+// ── APP STATE ──
+let state = {
+  city: CITIES[0],
+  category: "all",
+  search: "",
+  sort: "name",
+};
+
+// ── HELPERS ──
+const fmt = n => n === null ? null : `₱${Number(n).toLocaleString('en-PH', {minimumFractionDigits: n % 1 !== 0 ? 2 : 0, maximumFractionDigits: 2})}`;
+const storeKeys = ["rob","sm","pg","mg"];
+
+function getCheapest(product, availStores) {
+  let min = Infinity, minStore = null;
+  for (const s of availStores) {
+    const p = product[s];
+    if (p !== null && p !== undefined && p < min) {
+      min = p; minStore = s;
+    }
+  }
+  return { price: min === Infinity ? null : min, store: minStore };
+}
+
+function getMax(product, availStores) {
+  let max = -Infinity;
+  for (const s of availStores) {
+    const p = product[s];
+    if (p !== null && p !== undefined && p > max) max = p;
+  }
+  return max === -Infinity ? null : max;
+}
+
+// ── RENDER HELPERS ──
+function buildCityOptions() {
+  const sel = document.getElementById("citySelect");
+  CITIES.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c.name;
+    opt.textContent = c.name;
+    sel.appendChild(opt);
+  });
+}
+
+function buildCatTabs() {
+  const wrap = document.getElementById("catTabs");
+  wrap.innerHTML = "";
+  CATEGORIES.forEach(c => {
+    const btn = document.createElement("button");
+    btn.className = "cat-tab" + (state.category === c.id ? " active" : "");
+    btn.innerHTML = `<span class="cat-icon">${c.icon}</span>${c.name}`;
+    btn.onclick = () => { state.category = c.id; render(); };
+    wrap.appendChild(btn);
+  });
+}
+
+function buildStoreLegend() {
+  const wrap = document.getElementById("storeLegend");
+  wrap.innerHTML = "";
+  storeKeys.forEach(k => {
+    const s = STORES[k];
+    const avail = state.city.stores.includes(k);
+    const div = document.createElement("div");
+    div.className = `store-pill ${k}${!avail ? " unavail" : ""}`;
+    div.innerHTML = `<span class="store-dot ${k}"></span>${s.short}${!avail ? " (N/A)" : ""}`;
+    wrap.appendChild(div);
+  });
+}
+
+function buildProductCard(product) {
+  const availStores = state.city.stores.filter(s => product[s] !== null && product[s] !== undefined);
+  if (availStores.length === 0) return null;
+
+  const { price: cheapPrice, store: cheapStore } = getCheapest(product, availStores);
+  const maxPrice = getMax(product, availStores);
+  const savings = cheapPrice && maxPrice ? (maxPrice - cheapPrice) : 0;
+  const catObj = CATEGORIES.find(c => c.id === product.cat);
+  const savingsPct = maxPrice > 0 ? Math.round((savings / maxPrice) * 100) : 0;
+
+  const card = document.createElement("div");
+  card.className = "product-card";
+
+  // Header
+  card.innerHTML = `
+    <div class="card-header">
+      <div>
+        <div class="item-name">${product.name}</div>
+        <div class="item-unit">${product.unit}</div>
+      </div>
+      <div class="cat-tag">${catObj ? catObj.icon : ""} ${catObj ? catObj.name.split(" ")[0] : ""}</div>
+    </div>
+    <div class="prices-wrap" id="prices-${product.name.replace(/\W/g,'')}"></div>
+    ${savingsPct > 0 ? `
+    <div class="pricebar-wrap">
+      <div class="pricebar-label">Price spread: up to ${savingsPct}% cheaper at cheapest store</div>
+      <div class="pricebar"><div class="pricebar-fill" style="width:${savingsPct}%"></div></div>
+    </div>` : ""}
+    <div class="card-footer">
+      <div class="dti-info">DTI SRP: <strong>${fmt(product.dti)}</strong></div>
+      ${savings > 0 ? `<div class="savings-badge">Save up to ${fmt(savings)}</div>` : ""}
+    </div>
+  `;
+
+  // Price rows
+  const pricesWrap = card.querySelector(`#prices-${product.name.replace(/\W/g,'')}`);
+  storeKeys.forEach(k => {
+    const s = STORES[k];
+    const avail = state.city.stores.includes(k);
+    const price = product[k];
+    const isNA = !avail || price === null || price === undefined;
+    const isCheapest = k === cheapStore && !isNA;
+
+    const row = document.createElement("div");
+    row.className = `price-row${isCheapest ? " cheapest-row" : ""}${isNA ? " unavail-row" : ""}`;
+    row.innerHTML = `
+      <div class="store-name-label">
+        <div class="store-badge" style="background:var(--${k})"></div>
+        ${s.short}
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        ${isCheapest ? `<span class="cheapest-label">CHEAPEST</span>` : ""}
+        <div class="price-amount">${isNA ? '<span class="na-text">N/A</span>' : fmt(price)}</div>
+      </div>
+    `;
+    pricesWrap.appendChild(row);
+  });
+
+  return card;
+}
+
+function getFilteredProducts() {
+  let products = PRODUCTS;
+
+  // Category filter
+  if (state.category !== "all") {
+    products = products.filter(p => p.cat === state.category);
+  }
+
+  // Search filter
+  if (state.search) {
+    const q = state.search.toLowerCase();
+    products = products.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      p.unit.toLowerCase().includes(q) ||
+      (CATEGORIES.find(c => c.id === p.cat)?.name || "").toLowerCase().includes(q)
+    );
+  }
+
+  // Sort
+  if (state.sort === "name") {
+    products.sort((a, b) => a.name.localeCompare(b.name));
+  } else if (state.sort === "cheapest") {
+    products.sort((a, b) => {
+      const ac = getCheapest(a, state.city.stores).price || 9999;
+      const bc = getCheapest(b, state.city.stores).price || 9999;
+      return ac - bc;
+    });
+  } else if (state.sort === "savings") {
+    products.sort((a, b) => {
+      const am = getMax(a, state.city.stores);
+      const ac = getCheapest(a, state.city.stores).price;
+      const bm = getMax(b, state.city.stores);
+      const bc = getCheapest(b, state.city.stores).price;
+      return (bm - bc) - (am - ac);
+    });
+  }
+
+  return products;
+}
+
+function render() {
+  buildCatTabs();
+  buildStoreLegend();
+
+  const products = getFilteredProducts();
+  const grid = document.getElementById("productsGrid");
+  grid.innerHTML = "";
+
+  const resultCount = document.getElementById("resultCount");
+  resultCount.innerHTML = `Showing <strong>${products.length}</strong> item${products.length !== 1 ? "s" : ""} in <strong>${state.city.name}</strong>`;
+
+  if (products.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1">
+        <div class="icon">🔍</div>
+        <h3>No items found</h3>
+        <p>Try a different search term or category.</p>
+      </div>
+    `;
+    return;
+  }
+
+  products.forEach(product => {
+    const card = buildProductCard(product);
+    if (card) grid.appendChild(card);
+  });
+}
+
+// ── INIT ──
+function init() {
+  buildCityOptions();
+
+  document.getElementById("citySelect").addEventListener("change", e => {
+    state.city = CITIES.find(c => c.name === e.target.value) || CITIES[0];
+    render();
+  });
+
+  document.getElementById("searchInput").addEventListener("input", e => {
+    state.search = e.target.value.trim();
+    render();
+  });
+
+  document.getElementById("sortSelect").addEventListener("change", e => {
+    state.sort = e.target.value;
+    render();
+  });
+
+  render();
+}
+
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
